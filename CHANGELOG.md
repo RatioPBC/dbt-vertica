@@ -3,6 +3,12 @@
 - This file provides a full account of all changes to dbt-vertica.
 - "Breaking changes" listed under a version may require action from end users.
 
+### 1.10.0
+
+#### Features
+
+- Support dbt-core version 1.10.0
+
 ### 1.9.0
 
 #### Features
