@@ -43,7 +43,10 @@ try:
 except ImportError:
     # the user has a downlevel version of setuptools.
     print("Error: dbt requires setuptools v40.1.0 or higher.")
-    print('Please upgrade setuptools with "pip install --upgrade setuptools" ' "and try again")
+    print(
+        'Please upgrade setuptools with "pip install --upgrade setuptools" '
+        "and try again"
+    )
     sys.exit(1)
 
 
@@ -62,7 +65,7 @@ def _get_plugin_version_dict():
     _version_path = os.path.join(HERE, "dbt", "adapters", "vertica", "__version__.py")
     _semver = r"""(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)"""
     _pre = r"""((?P<prekind>a|b|rc)(?P<pre>\d+))?"""
-    _version_pattern = fr"""version\s*=\s*["']{_semver}{_pre}["']"""
+    _version_pattern = rf"""version\s*=\s*["']{_semver}{_pre}["']"""
     with open(_version_path) as f:
         match = re.search(_version_pattern, f.read().strip())
         if match is None:
@@ -78,7 +81,7 @@ def _get_dbt_core_version():
 
 
 package_name = "dbt-vertica"
-package_version = "1.8.5"
+package_version = "1.9.0"
 
 description = """Official vertica adapter plugin for dbt (data build tool)"""
 dbt_core_version = _get_dbt_core_version()
@@ -88,38 +91,37 @@ setup(
     version=package_version,
     description=description,
     long_description=README,
-    long_description_content_type='text/markdown',
-    license='Apache License 2.0', 
-    author='Vertica (Former authors: Matthew Carter, Andy Regan, Andrew Hedengren)',
-    author_email='os_dbt_vertica@microfocus.com',
-    url='https://github.com/ajay.abrol2/dbt-vertica/',
-    packages=find_packages(include=["dbt","dbt.*"]),
-    
+    long_description_content_type="text/markdown",
+    license="Apache License 2.0",
+    author="Vertica (Former authors: Matthew Carter, Andy Regan, Andrew Hedengren)",
+    author_email="os_dbt_vertica@microfocus.com",
+    url="https://github.com/ajay.abrol2/dbt-vertica/",
+    packages=find_packages(include=["dbt", "dbt.*"]),
     package_data={
-        'dbt': [
-            'include/vertica/dbt_project.yml',
-            'include/vertica/profile_template.yml',
-            'include/vertica/sample_profiles.yml',
-            'include/vertica/macros/*.sql',
-            'include/vertica/macros/adapters/*.sql',
-            'include/vertica/macros/unit_test_sql/*.sql',
-            'include/vertica/macros/materializations/*.sql',
-            'include/vertica/macros/materializations/models/incremental/*.sql',
-            'include/vertica/macros/materializations/tests/*.sql',
-            'include/vertica/macros/materializations/models/table/*.sql',
-            'include/vertica/macros/materializations/models/view/*.sql',
-            'include/vertica/macros/materializations/seeds/*.sql',
-            'include/vertica/macros/materializations/snapshots/*.sql',
-            'include/vertica/macros/utils/*.sql',
+        "dbt": [
+            "include/vertica/dbt_project.yml",
+            "include/vertica/profile_template.yml",
+            "include/vertica/sample_profiles.yml",
+            "include/vertica/macros/*.sql",
+            "include/vertica/macros/adapters/*.sql",
+            "include/vertica/macros/unit_test_sql/*.sql",
+            "include/vertica/macros/materializations/*.sql",
+            "include/vertica/macros/materializations/models/incremental/*.sql",
+            "include/vertica/macros/materializations/tests/*.sql",
+            "include/vertica/macros/materializations/models/table/*.sql",
+            "include/vertica/macros/materializations/models/view/*.sql",
+            "include/vertica/macros/materializations/seeds/*.sql",
+            "include/vertica/macros/materializations/snapshots/*.sql",
+            "include/vertica/macros/utils/*.sql",
         ]
     },
     install_requires=[
-       'dbt-core==1.8.5',
+        "dbt-core==1.9.0",
         # "dbt-core~={}".format(dbt_core_version),
-        'vertica-python>=1.1.0',
-        'dbt-tests-adapter==1.8.0',
-        'python-dotenv==0.21.1',
-        'pytest>=8.3.2',
+        "vertica-python>=1.1.0",
+        "dbt-tests-adapter==1.9.0",
+        "python-dotenv==0.21.1",
+        "pytest>=8.3.2",
     ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -130,7 +132,7 @@ setup(
         "Topic :: Database :: Database Engines/Servers",
         "Topic :: Database :: Front-Ends",
         "Topic :: Software Development :: Libraries :: Python Modules",
-        "Operating System :: OS Independent"
+        "Operating System :: OS Independent",
     ],
     python_requires=">=3.8.0",
 )
