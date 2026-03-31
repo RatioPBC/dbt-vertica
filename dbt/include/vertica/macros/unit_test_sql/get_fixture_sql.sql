@@ -8,9 +8,11 @@
 {%-   set columns_in_relation = adapter.get_columns_in_relation(this_or_defer_relation) -%}
 
 {%-   set column_name_to_data_types = {} -%}
+{%-   set column_name_to_quoted = {} -%}
 {%-   for column in columns_in_relation -%}
 {#-- This needs to be a case-insensitive comparison --#}
 {%-     do column_name_to_data_types.update({column.name|lower: column.data_type}) -%}
+{%-     do column_name_to_quoted.update({column.name|lower: column.quoted}) -%}
 {%-   endfor -%}
 {%- endif -%}
 
@@ -45,7 +47,7 @@ union all
 {% endmacro %}
 
 
-{% macro get_expected_sql(rows, column_name_to_data_types) %}
+{% macro get_expected_sql(rows, column_name_to_data_types, column_name_to_quoted) %}
 
 {%- if (rows | length) == 0 -%}
     select * from dbt_internal_unit_test_actual
@@ -80,6 +82,11 @@ union all
         {%- endif -%}
 
         {%- set column_type = column_name_to_data_types[column_name] %}
+
+        {#-- For string fixture values, strip varchar length to prevent silent truncation (GH-11974) --#}
+        {%- if column_value is string and 'varying' in column_type -%}
+            {%- set column_type = column_type.split('(')[0] -%}
+        {%- endif -%}
 
         {#-- sanitize column_value: wrap yaml strings in quotes, apply cast --#}
         {%- set column_value_clean = column_value -%}

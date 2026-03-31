@@ -14,8 +14,7 @@ dbt-vertica has been developed using the following software and versions:
 * Vertica Server 23.4.0-0
 * Python 3.11
 * vertica-python client 1.3.1
-* dbt-core 1.10.0
-* dbt-tests-adapter 1.10.0
+* dbt-core 1.11.0
 
 ## Supported Features
 
