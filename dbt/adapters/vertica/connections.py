@@ -16,7 +16,7 @@ import os
 import ssl
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, List, Literal, Optional, Tuple, Union
 
 import agate
 import dbt_common.clients.agate_helper
@@ -49,6 +49,10 @@ class verticaCredentials(Credentials):
     retries:int  =  1
     backup_server_node: Optional[List[str]] = None
     # backup_server_node: Optional[str] = None
+    tls_mode: Optional[Literal['disable', 'prefer', 'require', 'verify-ca', 'verify-full']] = None
+    tls_cafile: Optional[str] = None
+    tls_certfile: Optional[str] = None
+    tls_keyfile: Optional[str] = None
 
     # additional_info = {
     # 'password': str, 
@@ -99,8 +103,17 @@ class verticaConnectionManager(SQLConnectionManager):
                 
             }
 
+            if credentials.tls_mode is not None:
+                conn_info['tls_mode'] = credentials.tls_mode
+                if credentials.tls_cafile is not None:
+                    conn_info['tls_cafile'] = credentials.tls_cafile
+                if credentials.tls_certfile is not None:
+                    conn_info['tls_certfile'] = credentials.tls_certfile
+                if credentials.tls_keyfile is not None:
+                    conn_info['tls_keyfile'] = credentials.tls_keyfile
+                logger.debug(f'TLS mode is set to {credentials.tls_mode}')
             # if credentials.ssl.lower() in {'true', 'yes', 'please'}:
-            if credentials.ssl:
+            elif credentials.ssl:
                 if credentials.ssl_env_cafile is not None:
                     context = ssl.create_default_context(
                         cafile=os.environ.get(credentials.ssl_env_cafile),

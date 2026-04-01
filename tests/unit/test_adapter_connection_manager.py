@@ -1,4 +1,3 @@
-
 # Copyright (c) [2018-2023]  Micro Focus or one of its affiliates.
 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +19,6 @@ import sys
 import dbt.exceptions
 
 
-
 import vertica_python
 
 
@@ -28,6 +26,7 @@ from dbt.adapters.contracts.connection import Connection
 from dbt.adapters.base import BaseConnectionManager
 from dbt.adapters.vertica import verticaCredentials, verticaConnectionManager
 from dbt.adapters.events.logging import AdapterLogger
+
 
 class BaseConnectionManagerTest(unittest.TestCase):
     def setUp(self):
@@ -38,7 +37,7 @@ class BaseConnectionManagerTest(unittest.TestCase):
             password="simplify3xdb",
             database="VMart",
             schema="online_sales",
-            retries = 4
+            retries=4,
         )
         self.logger = AdapterLogger("test")
         self.vertica_connection = Connection("vertica", None, self.vertica_credentials)
@@ -90,9 +89,9 @@ class BaseConnectionManagerTest(unittest.TestCase):
             raise ValueError("Something went horribly wrong")
 
         with self.assertRaisesRegex(
-            dbt.adapters.exceptions.connection.FailedToConnectError, "Something went horribly wrong"
+            dbt.adapters.exceptions.connection.FailedToConnectError,
+            "Something went horribly wrong",
         ):
-
             BaseConnectionManager.retry_connection(
                 conn,
                 connect,
@@ -124,9 +123,9 @@ class BaseConnectionManagerTest(unittest.TestCase):
             raise ValueError("Something went horribly wrong")
 
         with self.assertRaisesRegex(
-            dbt.adapters.exceptions.connection.FailedToConnectError, "Something went horribly wrong"
+            dbt.adapters.exceptions.connection.FailedToConnectError,
+            "Something went horribly wrong",
         ):
-
             BaseConnectionManager.retry_connection(
                 conn,
                 connect,
@@ -197,7 +196,8 @@ class BaseConnectionManagerTest(unittest.TestCase):
             raise ValueError("Something went horribly wrong")
 
         with self.assertRaisesRegex(
-            dbt.adapters.exceptions.connection.FailedToConnectError, "Something went horribly wrong"
+            dbt.adapters.exceptions.connection.FailedToConnectError,
+            "Something went horribly wrong",
         ):
             BaseConnectionManager.retry_connection(
                 conn,
@@ -231,7 +231,8 @@ class BaseConnectionManagerTest(unittest.TestCase):
             raise TypeError("An unhandled thing went horribly wrong")
 
         with self.assertRaisesRegex(
-            dbt.adapters.exceptions.connection.FailedToConnectError, "An unhandled thing went horribly wrong"
+            dbt.adapters.exceptions.connection.FailedToConnectError,
+            "An unhandled thing went horribly wrong",
         ):
             BaseConnectionManager.retry_connection(
                 conn,
@@ -347,7 +348,8 @@ class BaseConnectionManagerTest(unittest.TestCase):
             return True
 
         with self.assertRaisesRegex(
-            dbt.adapters.exceptions.connection.FailedToConnectError, "retry_limit cannot be negative"
+            dbt.adapters.exceptions.connection.FailedToConnectError,
+            "retry_limit cannot be negative",
         ):
             BaseConnectionManager.retry_connection(
                 conn,
@@ -457,10 +459,6 @@ class BaseConnectionManagerTest(unittest.TestCase):
         assert timeouts == [(n, 2**n) for n in range(12)]
 
 
-
-
-
-
 class VerticaConnectionManagerTest(unittest.TestCase):
     def setUp(self):
         self.credentials = verticaCredentials(
@@ -470,7 +468,7 @@ class VerticaConnectionManagerTest(unittest.TestCase):
             password="simplify3xdb",
             database="VMart",
             schema="online_sales",
-            retries = 4
+            retries=4,
         )
         self.connection = Connection("vertica", None, self.credentials)
 
@@ -504,3 +502,4 @@ class VerticaConnectionManagerTest(unittest.TestCase):
         assert attempt == 3
         assert conn.state == "open"
         assert conn.handle is True
+
