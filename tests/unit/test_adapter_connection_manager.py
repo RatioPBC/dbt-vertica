@@ -472,6 +472,19 @@ class VerticaConnectionManagerTest(unittest.TestCase):
         )
         self.connection = Connection("vertica", None, self.credentials)
 
+    def _get_connect_kwargs(self, credentials):
+        """Helper that opens a connection with the given credentials and returns
+        the kwargs that were passed to vertica_python.connect."""
+        conn = Connection("vertica", None, credentials)
+
+        def connect(*args, **kwargs):
+            return True
+
+        with mock.patch("vertica_python.connect", wraps=connect) as mock_connect:
+            verticaConnectionManager.open(conn)
+
+        return mock_connect.call_args[1]
+
     def test_open(self):
         """Test opening a vertica Connection with failures in the first 3 attempts.
         This test uses a Connection populated with test verticaCredential values, and
@@ -502,4 +515,132 @@ class VerticaConnectionManagerTest(unittest.TestCase):
         assert attempt == 3
         assert conn.state == "open"
         assert conn.handle is True
+
+    def test_open_with_tls_mode_require(self):
+        """Test that tls_mode='require' passes tlsmode to vertica_python.connect
+        and does not set an ssl context."""
+        creds = verticaCredentials(
+            host="172.16.120.10",
+            username="dbadmin",
+            port=5433,
+            password="simplify3xdb",
+            database="VMart",
+            schema="online_sales",
+            tls_mode="require",
+        )
+        kwargs = self._get_connect_kwargs(creds)
+
+        assert kwargs["tlsmode"] == "require"
+        assert "ssl" not in kwargs
+
+    def test_open_with_tls_mode_verify_full_and_certs(self):
+        """Test that tls_mode='verify-full' with cert files passes all TLS
+        parameters to vertica_python.connect."""
+        creds = verticaCredentials(
+            host="172.16.120.10",
+            username="dbadmin",
+            port=5433,
+            password="simplify3xdb",
+            database="VMart",
+            schema="online_sales",
+            tls_mode="verify-full",
+            tls_cafile="/path/to/ca.pem",
+            tls_certfile="/path/to/client-cert.pem",
+            tls_keyfile="/path/to/client-key.pem",
+        )
+        kwargs = self._get_connect_kwargs(creds)
+
+        assert kwargs["tlsmode"] == "verify-full"
+        assert kwargs["tls_cafile"] == "/path/to/ca.pem"
+        assert kwargs["tls_certfile"] == "/path/to/client-cert.pem"
+        assert kwargs["tls_keyfile"] == "/path/to/client-key.pem"
+        assert "ssl" not in kwargs
+
+    def test_open_with_tls_mode_disable(self):
+        """Test that tls_mode='disable' passes tlsmode='disable' and no ssl context."""
+        creds = verticaCredentials(
+            host="172.16.120.10",
+            username="dbadmin",
+            port=5433,
+            password="simplify3xdb",
+            database="VMart",
+            schema="online_sales",
+            tls_mode="disable",
+        )
+        kwargs = self._get_connect_kwargs(creds)
+
+        assert kwargs["tlsmode"] == "disable"
+        assert "ssl" not in kwargs
+
+    def test_open_with_tls_mode_prefer_no_certs(self):
+        """Test that tls_mode='prefer' without cert files only passes tlsmode,
+        and does not include tls_cafile/tls_certfile/tls_keyfile keys."""
+        creds = verticaCredentials(
+            host="172.16.120.10",
+            username="dbadmin",
+            port=5433,
+            password="simplify3xdb",
+            database="VMart",
+            schema="online_sales",
+            tls_mode="prefer",
+        )
+        kwargs = self._get_connect_kwargs(creds)
+
+        assert kwargs["tlsmode"] == "prefer"
+        assert "tls_cafile" not in kwargs
+        assert "tls_certfile" not in kwargs
+        assert "tls_keyfile" not in kwargs
+
+    def test_open_with_ssl_fallback_when_no_tls_mode(self):
+        """Test that when tls_mode is not set and ssl=True, the legacy ssl
+        context path is used."""
+        creds = verticaCredentials(
+            host="172.16.120.10",
+            username="dbadmin",
+            port=5433,
+            password="simplify3xdb",
+            database="VMart",
+            schema="online_sales",
+            ssl=True,
+        )
+        conn = Connection("vertica", None, creds)
+
+        def connect(*args, **kwargs):
+            return True
+
+        with mock.patch("vertica_python.connect", wraps=connect) as mock_connect:
+            with mock.patch("ssl.create_default_context") as mock_ssl_ctx:
+                mock_ssl_ctx.return_value = "fake_ssl_context"
+                verticaConnectionManager.open(conn)
+
+        kwargs = mock_connect.call_args[1]
+        assert kwargs["ssl"] == "fake_ssl_context"
+        assert kwargs["tlsmode"] == "prefer"
+
+    def test_tls_mode_takes_precedence_over_ssl(self):
+        """Test that when both tls_mode and ssl=True are set, tls_mode is used
+        and the legacy ssl context is not created."""
+        creds = verticaCredentials(
+            host="172.16.120.10",
+            username="dbadmin",
+            port=5433,
+            password="simplify3xdb",
+            database="VMart",
+            schema="online_sales",
+            ssl=True,
+            tls_mode="require",
+        )
+        conn = Connection("vertica", None, creds)
+
+        def connect(*args, **kwargs):
+            return True
+
+        with mock.patch("vertica_python.connect", wraps=connect) as mock_connect:
+            with mock.patch("ssl.create_default_context") as mock_ssl_ctx:
+                verticaConnectionManager.open(conn)
+
+        kwargs = mock_connect.call_args[1]
+        assert kwargs["tlsmode"] == "require"
+        assert "ssl" not in kwargs
+        mock_ssl_ctx.assert_not_called()
 
