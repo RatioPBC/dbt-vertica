@@ -30,12 +30,7 @@ run = "docker exec -it {{ vars.container_name }} {{ vars.vsql }} -w '{{ env.VERT
 
 [tasks.setup]
 description = "Setup dependencies and install package."
-run = [
-  "mise run deps",
-  "mise run deps:extract",
-  "mise run deps:install",
-  "mise run install",
-]
+run = ["mise run deps", "mise run deps:extract", "mise run deps:install", "mise run install"]
 
 [tasks.deps]
 description = "Install Python dependencies"
