@@ -1,0 +1,58 @@
+[vars]
+vsql = "/opt/vertica/bin/vsql"
+container_name = "dbt_vertica"
+
+[tools]
+python = "3.11.14"
+
+[env]
+CONFORM_DISABLE_FORMAT_FOR_FILETYPES = "sql,python"
+SCHEMA_NAME = "dbt_1_8_5"
+VERTICA_CONTAINER_NAME = "{{ vars.container_name }}"
+VERTICA_USER = "dbadmin"
+VERTICA_PASS = ""
+VERTICA_HOST = "localhost"
+VERTICA_PORT = 5433
+VERTICA_DATABASE = "docker"
+VERTICA_SCHEMA = "{{ env.SCHEMA_NAME }}"
+
+[tasks."vertica"]
+description = "Starts docker compose"
+run = "docker compose up"
+
+[tasks."vertica:bash"]
+description = "Drops you into bash in the container"
+run = "docker exec -it {{ vars.container_name }} bash -l"
+
+[tasks."vertica:vsql"]
+description = "Drops you into vsql in the container"
+run = "docker exec -it {{ vars.container_name }} {{ vars.vsql }} -w '{{ env.VERTICA_PASS }}'"
+
+[tasks.setup]
+description = "Setup dependencies and install package."
+run = ["mise run deps", "mise run deps:extract", "mise run deps:install", "mise run install"]
+
+[tasks.deps]
+description = "Install Python dependencies"
+run = '''
+python -m pip install --upgrade pip
+pip install build twine pip-tools
+'''
+
+[tasks."deps:extract"]
+description = "Extract dependencies"
+run = "pip-compile -o requirements.txt --extra dev setup.py"
+
+[tasks."deps:install"]
+description = "Install dependencies"
+run = "pip install -r requirements.txt"
+
+[tasks.install]
+description = "Install package"
+run = "python setup.py install"
+
+[tasks.test]
+run = "python -m pytest tests/"
+
+[tasks."test:basic"]
+run = "python -m pytest tests/functional/adapter/test_basic.py"
