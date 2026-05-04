@@ -1,6 +1,5 @@
 # dbt-vertica
 
-[![PyPI version](https://badge.fury.io/py/dbt-vertica.svg)](https://badge.fury.io/py/dbt-vertica)
 [![License](https://img.shields.io/badge/License-Apache%202.0-orange.svg)](https://opensource.org/licenses/Apache-2.0)
 
 [dbt](https://www.getdbt.com/) adapter for [Vertica](https://www.vertica.com/). The adapter uses [vertica-python](https://github.com/vertica/vertica-python) to connect to your Vertica database.
