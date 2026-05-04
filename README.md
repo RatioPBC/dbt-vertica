@@ -106,29 +106,19 @@ Have a bug or an idea? Please see [CONTRIBUTING.md](https://github.com/vertica/d
 
 ## Develop
 
-Run a local Vertica instance like:
-
-    docker run -p 5433:5433 \
-               -p 5444:5444 \
-               -e VERTICA_DB_NAME=docker \
-               -e VMART_ETL_SCRIPT="" \
-               -e VMART_ETL_SQL="" \
-               vertica/vertica-ce
-
-Access the local Vertica instance like:
-
-    docker exec -it <docker_image_name> /opt/vertica/bin/vsql
-
-You need the pytest dbt adapter:
-
-    pip3 install  dbt-tests-adapter==1.5.0
-
-Run tests via:
-
-    pytest tests/functional/adapter/
-    # run an individual test 
-    pytest tests/functional/adapter/test_basic.py
-
-Run Unit test via:
-
-    dbt test --select /{foldername}/{unit_test_file}
+```bash
+# start vertica
+mise run vertica
+# if you need vertica sql console access to the running container
+mise run vertica:vsql
+# if you need console access to the running container
+mise run vertica:bash
+# to actually get deps installed
+mise run setup
+# testing...
+mise run test:basic
+# all tests
+mise run test
+# a specific test
+mise run test tests/functional/adapter/concurrency/test_concurrency.py
+```

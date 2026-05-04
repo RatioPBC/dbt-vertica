@@ -52,7 +52,10 @@ description = "Install package"
 run = "python setup.py install"
 
 [tasks.test]
-run = "python -m pytest tests/"
+run = "python -m pytest ${usage_test}"
+usage = '''
+arg "<test>" default="test/" 
+'''
 
 [tasks."test:basic"]
 run = "python -m pytest tests/functional/adapter/test_basic.py"
