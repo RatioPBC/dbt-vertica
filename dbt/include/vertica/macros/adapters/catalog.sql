@@ -61,30 +61,38 @@
     , tab.table_schema
     , tab.table_name
     , 'TABLE' table_type
-    , comment table_comment
+    , tab_cmt.comment table_comment
     , tab.owner_name table_owner
     , col.column_name
     , col.ordinal_position column_index
     , col.data_type column_type
-    , nullif('','') column_comment
+    , col_cmt.comment column_comment
     from v_catalog.tables tab
     join v_catalog.columns col on tab.table_id = col.table_id
-    left join v_catalog.comments on tab.table_id = object_id
+    left join v_catalog.comments tab_cmt
+        on tab.table_id = tab_cmt.object_id and tab_cmt.object_type = 'TABLE'
+    left join v_catalog.comments col_cmt
+        on tab.table_id = col_cmt.object_id and col_cmt.object_type = 'COLUMN'
+        and col.column_name = col_cmt.child_object
     union all
     select
     '{{ information_schema.database }}' table_database
     , vw.table_schema
     , vw.table_name
     , 'VIEW' table_type
-    , comment table_comment
+    , vw_cmt.comment table_comment
     , vw.owner_name table_owner
     , col.column_name
     , col.ordinal_position column_index
     , col.data_type column_type
-    , nullif('','') column_comment
+    , col_cmt.comment column_comment
     from v_catalog.views vw
     join v_catalog.view_columns col on vw.table_id = col.table_id
-    left join v_catalog.comments on vw.table_id = object_id
+    left join v_catalog.comments vw_cmt
+        on vw.table_id = vw_cmt.object_id and vw_cmt.object_type = 'VIEW'
+    left join v_catalog.comments col_cmt
+        on vw.table_id = col_cmt.object_id and col_cmt.object_type = 'COLUMN'
+        and col.column_name = col_cmt.child_object
 
    )  anything
 {%- endmacro %}
@@ -119,7 +127,7 @@
 {% macro vertica__get_catalog_results_sql() -%}
     select *
     from tables
-    join columns using ("table_database", "table_schema", "table_name");
+    join columns using ("table_database", "table_schema", "table_name", "column_name", "column_index", "column_type");
    
 {%- endmacro %}
 
