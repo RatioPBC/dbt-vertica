@@ -48,8 +48,8 @@ description = "Install dependencies"
 run = "pip install -r requirements.txt"
 
 [tasks.install]
-description = "Install package"
-run = "python setup.py install"
+description = "Install package (editable, so live macro/source edits are picked up)"
+run = "pip install -e . --no-deps"
 
 [tasks.test]
 run = "python -m pytest ${usage_test}"
