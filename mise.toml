@@ -48,8 +48,20 @@ description = "Install dependencies"
 run = "pip install -r requirements.txt"
 
 [tasks.install]
-description = "Install package (editable, so live macro/source edits are picked up)"
-run = "pip install -e . --no-deps"
+description = "Editable dev install via a plain .pth so live macro/source edits load and the dbt namespace merges with core."
+# NOTE: `pip install -e .` is intentionally NOT used here. setuptools' modern
+# editable install generates an import finder that pins the `dbt` namespace to
+# this repo only, shadowing dbt.tests / dbt.adapters.sql from dbt-core and
+# breaking the test suite. A plain .pth adds the repo root to sys.path and lets
+# this repo's dbt/__init__.py (pkgutil.extend_path) merge with core's namespace.
+run = '''
+SITE=$(python -c "import site; print(site.getsitepackages()[0])")
+# Remove any stale modern-editable finder artifacts from a previous `pip install -e .`
+rm -f "$SITE"/__editable__*dbt_vertica* "$SITE"/__editable___dbt_vertica*finder.py
+# Point Python at the live source tree
+echo "$MISE_PROJECT_ROOT" > "$SITE/dbt-vertica-dev.pth"
+python -c "import dbt.adapters.vertica, dbt.tests.fixtures.project; print('dbt-vertica editable install OK (namespace merged)')"
+'''
 
 [tasks.test]
 run = "python -m pytest ${usage_test}"
