@@ -14,6 +14,12 @@ dbt-adapters/
 
 All commands are run from the repo root. Also take into account the tasks in `mise.toml`.
 
+In particular:
+
+- start Vertica with `mise run vertica`
+- query Vertica with `mise run vertica:query "select * from..."`
+- never execute queries via `docker exec`
+
 ## Testing
 
 ### Unit Tests (no database required)
