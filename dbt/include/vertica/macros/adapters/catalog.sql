@@ -1,7 +1,10 @@
 {% macro vertica__get_catalog(information_schema, schemas) -%}
 
+   {% if env_var('DBT_VERTICA_VOLATILE_CATALOG', '') in ('1', 'true') %}
+       {{ return(vertica__get_catalog_volatile(information_schema, schemas)) }}
+   {% endif %}
 
-   {% set query %}     
+   {% set query %}
 
         with tables as (
               {{ vertica__get_catalog_tables_sql(information_schema) }}

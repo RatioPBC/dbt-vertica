@@ -1,10 +1,15 @@
 from types import SimpleNamespace
 import pytest
+from dbt.tests.util import run_dbt
 
 
-def run_macro(project, macro_name, **kwargs):
+def run_macro(project, macro_name, manifest=None, **kwargs):
+    # The adapter's internal MacroManifest lacks `env_vars`, which breaks
+    # `env_var()` calls inside macros; a real parsed Manifest does not.
     with project.adapter.connection_named("_test_catalog"):
-        return project.adapter.execute_macro(macro_name, kwargs=kwargs)
+        return project.adapter.execute_macro(
+            macro_name, macro_resolver=manifest, kwargs=kwargs
+        )
 
 
 def exec_sql(project, sql):
@@ -32,11 +37,22 @@ class CatalogCommentsBase:
         )
         yield
 
+    @pytest.fixture(scope="class")
+    def catalog_env(self):
+        """Override to set env vars; runs before dbt parse so the
+        invocation context (which env_var() reads) picks them up."""
+        yield
+
+    @pytest.fixture(scope="class", autouse=True)
+    def parsed_manifest(self, request, project, catalog_env):
+        request.cls.manifest = run_dbt(["parse"])
+
     def get_catalog(self, project):
         info_schema = SimpleNamespace(database=project.database)
         return run_macro(
             project,
             self.macro_name,
+            manifest=self.manifest,
             information_schema=info_schema,
             schemas=[project.test_schema],
         )
@@ -67,6 +83,25 @@ class CatalogCommentsBase:
 
 class TestGetCatalogComments(CatalogCommentsBase):
     macro_name = "vertica__get_catalog"
+
+    def test_uses_legacy_catalog_by_default(self, project):
+        table = self.get_catalog(project)
+        assert "column_id" not in table.column_names
+
+
+class TestGetCatalogVolatileEnvVarOverride(CatalogCommentsBase):
+    macro_name = "vertica__get_catalog"
+
+    @pytest.fixture(scope="class")
+    def catalog_env(self):
+        mp = pytest.MonkeyPatch()
+        mp.setenv("DBT_VERTICA_VOLATILE_CATALOG", "true")
+        yield
+        mp.undo()
+
+    def test_dispatches_to_volatile_catalog(self, project):
+        table = self.get_catalog(project)
+        assert "column_id" in table.column_names
 
 
 class TestGetCatalogVolatile(CatalogCommentsBase):
