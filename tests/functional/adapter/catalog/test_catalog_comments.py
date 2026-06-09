@@ -40,6 +40,7 @@ class TestGetCatalogComments:
             schemas=[project.test_schema],
         )
         rows = {(r["table_name"], r["column_name"]): r for r in table.rows}
+        assert len(rows) == 3
         assert rows[("cat_tbl", "id")]["table_comment"] == "table comment A"
         assert rows[("cat_tbl", "id")]["column_comment"] == "col comment id"
         assert rows[("cat_tbl", "name")]["column_comment"] == "col comment name"
@@ -53,6 +54,7 @@ class TestGetCatalogComments:
             schemas=[project.test_schema],
         )
         view_rows = [r for r in table.rows if r["table_name"] == "cat_vw"]
+        assert len(view_rows) == 1
         assert view_rows, "view missing from catalog"
         assert view_rows[0]["table_type"] == "VIEW"
         assert view_rows[0]["table_comment"] == "view comment B"
