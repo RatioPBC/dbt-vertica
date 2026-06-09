@@ -135,8 +135,14 @@ class TestGetCatalogVolatile(CatalogCommentsBase):
         assert tbl_id != vw_id
 
         def expected_row(
-            rel_id, table_name, table_type, table_comment,
-            column_name, column_index, column_type, column_comment,
+            rel_id,
+            table_name,
+            table_type,
+            table_comment,
+            column_name,
+            column_index,
+            column_type,
+            column_comment,
         ):
             return {
                 "id": rel_id,
@@ -154,14 +160,32 @@ class TestGetCatalogVolatile(CatalogCommentsBase):
             }
 
         assert rows[("cat_tbl", "id")] == expected_row(
-            tbl_id, "cat_tbl", "TABLE", "table comment A",
-            "id", 1, "int", "col comment id",
+            tbl_id,
+            "cat_tbl",
+            "TABLE",
+            "table comment A",
+            "id",
+            1,
+            "int",
+            "col comment id",
         )
         assert rows[("cat_tbl", "name")] == expected_row(
-            tbl_id, "cat_tbl", "TABLE", "table comment A",
-            "name", 2, "varchar(50)", "col comment name",
+            tbl_id,
+            "cat_tbl",
+            "TABLE",
+            "table comment A",
+            "name",
+            2,
+            "varchar(50)",
+            "col comment name",
         )
         assert rows[("cat_vw", "id")] == expected_row(
-            vw_id, "cat_vw", "VIEW", "view comment B",
-            "id", 1, "int", None,
+            vw_id,
+            "cat_vw",
+            "VIEW",
+            "view comment B",
+            "id",
+            1,
+            "int",
+            None,
         )
