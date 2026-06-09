@@ -1,4 +1,4 @@
-# AGENTS.md — dbt Vertica adapter repo
+# dbt Vertica adapter repo
 
 This file instructs AI coding agents on how to navigate, build, test, and contribute to this repository.
 
@@ -103,19 +103,17 @@ class MyAdapter(SQLAdapter):
 When modifying base packages, check downstream impact:
 
 - Changes to `dbt-adapters` affect **all** adapters
-- Changes to `dbt-postgres` affect **dbt-redshift**
 - Changes to `dbt-tests-adapter` affect all adapter test suites
 
 ## Security Rules
 
-- Never commit `test.env` or any file containing credentials
+- Never commit
 - Never hardcode credentials, tokens, or access keys in source files
-- Treat `test.env.example` as the authoritative list of required env vars (no values)
+- Treat the `[env]` section in the mise.toml file as the authoritative list of environment variables
 
 ## Pull Request Checklist
 
 - [ ] Unit tests pass
 - [ ] Integration tests pass against a real database (if changing SQL or connection logic)
-- [ ] `test.env` not committed
 - [ ] New adapter methods decorated with `@available` if needed in macros
 - [ ] Capabilities updated if new features are added
