@@ -103,13 +103,15 @@ def databricks_sql_endpoint_target():
 
 def vertica_target():
     return {
-       'type': 'vertica',
-        'threads': 1,
-        'host': 'localhost',
-        'username': 'dbadmin',
-        'password': '',
-        'database': 'docker',
-        'port': 5433,
+        "type": "vertica",
+        "threads": 1,
+        "host": "localhost",
+        "username": "dbadmin",
+        "password": "",
+        "database": "docker",
+        "port": 5433,
+        "tls_mode": "disable",
+        "connection_load_balance": None,
     }
 
 
