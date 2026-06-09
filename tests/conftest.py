@@ -1,4 +1,3 @@
-
 # Copyright (c) [2018-2023]  Micro Focus or one of its affiliates.
 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,16 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from sqlite3 import connect
 import pytest
 import os
 from typing import Dict, Any, Set
+
 # Import the standard functional fixtures as a plugin
 # Note: fixtures with session scope need to be local
 pytest_plugins = "dbt.tests.fixtures.project"
 
+
 def pytest_addoption(parser):
     parser.addoption("--profile", action="store", default="vertica", type=str)
-
 
 
 def pytest_configure(config):
@@ -35,19 +36,19 @@ def pytest_configure(config):
         "only_profile(profile): only test the given profile",
     )
 
+
 # The profile dictionary, used to write out profiles.yml
 # dbt will supply a unique schema per test, so we do not specify 'schema' here
 @pytest.fixture(scope="class")
 def dbt_profile_target():
     return {
-         'type': 'vertica',
-        'threads': 1,
-        'host': 'localhost',
-        'username': 'dbadmin',
-        'password': '',
-        'database': 'docker',
-        'port': 5433,
-        
+        "type": "vertica",
+        "threads": 1,
+        "host": "localhost",
+        "username": "dbadmin",
+        "password": "",
+        "database": "docker",
+        "port": 5433,
     }
 
 
@@ -59,10 +60,8 @@ def dbt_profile_target():
 #         "username": os.getenv("VERTICA_TEST_USER", "dbadmin"),
 #         "password": os.getenv("VERTICA_TEST_PASS", ""),
 #         "database": os.getenv("VERTICA_TEST_DATABASE","VMart"),
-        
+
 #     }
-
-
 
 
 # def dbt_profile_target():
@@ -76,10 +75,11 @@ def dbt_profile_target():
 #         'port': 5433,
 #     }
 
+
 @pytest.fixture(scope="session")
 def dbt_profile_target(request):
     profile_type = request.config.getoption("--profile")
-    if profile_type =="vertica":
+    if profile_type == "vertica":
         target = vertica_target()
     elif profile_type == "databricks_sql_endpoint":
         target = databricks_sql_endpoint_target()
@@ -89,17 +89,20 @@ def dbt_profile_target(request):
         raise ValueError(f"Invalid profile type '{profile_type}'")
     return target
 
+
 def apache_spark_target():
     return {
         "type": "spark",
         "host": "localhost",
     }
 
+
 def databricks_sql_endpoint_target():
     return {
         "type": "spark",
         "host": "localhost",
     }
+
 
 def vertica_target():
     return {
@@ -123,6 +126,7 @@ def skip_by_profile_type(request):
             if skip_profile_type == profile_type:
                 pytest.skip("skipped on '{profile_type}' profile")
 
+
 @pytest.fixture(autouse=True)
 def only_profile_type(request):
     profile_type = request.config.getoption("--profile")
@@ -130,5 +134,4 @@ def only_profile_type(request):
         for only_profile_type in request.node.get_closest_marker("only_profile").args:
             if only_profile_type != profile_type:
                 pytest.skip("skipped on '{profile_type}' profile")
-                
-                
+
