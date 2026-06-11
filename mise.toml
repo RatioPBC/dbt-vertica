@@ -16,9 +16,14 @@ VERTICA_PORT = 5433
 VERTICA_DATABASE = "docker"
 VERTICA_SCHEMA = "{{ env.SCHEMA_NAME }}"
 
-[tasks."vertica"]
+[tasks."vertica:start"]
 description = "Starts docker compose"
-run = "docker compose up"
+run = "docker compose up -d && docker compose logs -f"
+interactive = true
+
+[tasks."vertica:stop"]
+description = "Stops docker compose"
+run = "docker compose down"
 
 [tasks."vertica:bash"]
 description = "Drops you into bash in the container"

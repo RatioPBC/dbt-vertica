@@ -107,8 +107,8 @@ Have a bug or an idea? Please see [CONTRIBUTING.md](https://github.com/vertica/d
 ## Develop
 
 ```bash
-# start vertica
-mise run vertica
+# start vertica in a new terminal
+mise run vertica:start
 # if you need vertica sql console access to the running container
 mise run vertica:vsql
 # if you need console access to the running container
@@ -121,4 +121,6 @@ mise run test:basic
 mise run test
 # a specific test
 mise run test tests/functional/adapter/concurrency/test_concurrency.py
+# stop vertica if desired
+mise run vertica:stop
 ```
