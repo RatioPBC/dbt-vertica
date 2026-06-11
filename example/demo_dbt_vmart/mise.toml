@@ -1,0 +1,29 @@
+[settings]
+auto_install = false
+idiomatic_version_file_enable_tools = []
+experimental = true
+python.uv_venv_auto = "create|source"
+
+[env]
+DBT_PROFILES_DIR = "{{ cwd }}"
+UV_NO_MANAGED_PYTHON = true
+_.path = "bin"
+
+[tools]
+uv = "latest"
+
+[vars]
+vsql = "vsql -w '' -U dbadmin docker"
+
+[tasks."data:load"]
+run = '''
+#!/bin/env bash
+
+docker cp sampledata/ dbt_vertica:/home/dbadmin
+{{ vars.vsql }} -c "copy raw_schema.states from '/home/dbadmin/sampledata/states.csv' parser fcsvparser(type='traditional', delimiter=';');"
+{{ vars.vsql }} -c "copy raw_schema.store_orders from '/home/dbadmin/sampledata/store_orders.csv' parser fcsvparser(type='traditional', delimiter=';');"
+{{ vars.vsql }} -c "copy raw_schema.vendors from '/home/dbadmin/sampledata/vendors.csv' parser fcsvparser(type='traditional', delimiter=';');"
+'''
+
+[tasks."data:setup"]
+run = '{{ vars.vsql }} -f sampledata/DDL.sql'
