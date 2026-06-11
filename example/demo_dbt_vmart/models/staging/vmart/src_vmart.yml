@@ -3,9 +3,9 @@ version: 2
 sources:
   - name: raw_data
     description: This is the raw data to transform.
-    database: partner12db
-    schema: raw_schema 
-    tables: 
+    database: docker
+    schema: raw_schema
+    tables:
       - name: states
         description: This is the raw states data.
         columns:
@@ -23,7 +23,7 @@ sources:
             tests:
               - unique
               - not_null
-              
+
       - name: store_orders
         description: This is the raw store_orders data.
         columns:
