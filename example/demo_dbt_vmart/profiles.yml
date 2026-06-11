@@ -1,0 +1,15 @@
+vmart_project:
+  target: dev
+  outputs:
+    dev:
+      connection_load_balance: false
+      database: docker
+      host: localhost
+      username: dbadmin
+      password: ""
+      port: 5433
+      schema: example_vmart_project
+      threads: 4
+      retries: 2
+      type: vertica
+      tls_mode: disable
