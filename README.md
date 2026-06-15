@@ -10,7 +10,7 @@ For more information on using dbt with Vertica, consult the [Vertica-Setup](http
 
 dbt-vertica has been developed using the following software and versions:
 
-* Vertica Server 23.4.0-0
+* Vertica Server v25.1.0-0
 * Python 3.11
 * vertica-python client 1.3.1
 * dbt-core 1.11.0
@@ -31,7 +31,7 @@ Below is a table for what features the current Vertica adapter supports for dbt.
 | Incremental Materializations - Delete+Insert      | Yes         |
 | Incremental Materializations - Insert_Overwrite   | Yes         |
 | Snapshots - Timestamp                             | Yes         |
-| Snapshots - Check Cols                            | No  |
+| Snapshots - Check Cols                            | No          |
 | Seeds                                             | Yes         |
 | Tests                                             | Yes         |
 | Documentation                                     | Yes         |
@@ -79,30 +79,30 @@ your-profile:
 
 | Property | Description | Required? | Default Value | Example |
 | -------- | ----------- | --------- | ------------- | ------- |
-|  type       | The specific adapter to use. |    Yes    | None | vertica |
-| host    | The host name or IP address of any active node in the Vertica Server. |    Yes |    None |    127.0.0.1 |
-| port |    The port to use, default or custom. |    Yes    | 5433 | 5433 |
-| username | The username to use to connect to the server. | Yes | None    | dbadmin |
-| password | The password to use for authenticating to the server. | Yes | None | my_password |
-| database | The name of the database running on the server. | Yes | None | my_db |
-| oauth_access_token | To authenticate via OAuth, provide an OAuth Access Token that authorizes a user to the database. | No | "" | Default: "" |
-| schema | The schema to build models into. | No | None | VMart |
-| connection_load_balance | A Boolean value that indicates whether the connection can be redirected to a host in the database other than host. | No | true | true |
-| backup_server_node | List of hosts to connect to if the primary host specified in the connection (host, port) is unreachable. Each item in the list should be either a host string (using default port 5433) or a (host, port) tuple. A host can be a host name or an IP address. | No | none | ['123.123.123.123','www.abc.com',('123.123.123.124',5433)] |
-| retries | The retry times after an unsuccessful connection. | No | 2 | 3 |
-| threads | The number of threads the dbt project will run on. | No | 1 | 3 |
-| autocommit | Connection autocommit(True/False) | Yes | False | True |
-| label | A session label to identify the connection. | No | An auto-generated label with format of: dbt_username    | dbt_dbadmin |
+|  type                     | The specific adapter to use. |    Yes    | None | vertica |
+| host                      | The host name or IP address of any active node in the Vertica Server. |    Yes |    None |    127.0.0.1 |
+| port                      | The port to use, default or custom. |    Yes    | 5433 | 5433 |
+| username                  | The username to use to connect to the server. | Yes | None    | dbadmin |
+| password                  | The password to use for authenticating to the server. | Yes | None | my_password |
+| database                  | The name of the database running on the server. | Yes | None | my_db |
+| oauth_access_token        | To authenticate via OAuth, provide an OAuth Access Token that authorizes a user to the database. | No | "" | Default: "" |
+| schema                    | The schema to build models into. | No | None | VMart |
+| connection_load_balance   | A Boolean value that indicates whether the connection can be redirected to a host in the database other than host. | No | true | true |
+| backup_server_node        | List of hosts to connect to if the primary host specified in the connection (host, port) is unreachable. Each item in the list should be either a host string (using default port 5433) or a (host, port) tuple. A host can be a host name or an IP address. | No | none | ['123.123.123.123','www.abc.com',('123.123.123.124',5433)] |
+| retries                   | The retry times after an unsuccessful connection. | No | 2 | 3 |
+| threads                   | The number of threads the dbt project will run on. | No | 1 | 3 |
+| autocommit                | Connection autocommit(True/False) | Yes | False | True |
+| label                     | A session label to identify the connection. | No | An auto-generated label with format of: dbt_username    | dbt_dbadmin |
 
 For more information on Vertica’s connection properties please refer to [Vertica-Python](https://github.com/vertica/vertica-python#create-a-connection) Connection Properties.
 
 ## Changelog
 
-See the [changelog](https://github.com/vertica/dbt-vertica/blob/master/CHANGELOG.md)
+See the [changelog](https://github.com/vertica/dbt-vertica/blob/main/CHANGELOG.md)
 
 ## Contributing guidelines
 
-Have a bug or an idea? Please see [CONTRIBUTING.md](https://github.com/vertica/dbt-vertica/blob/master/CONTRIBUTING.md) for details
+Have a bug or an idea? Please see [CONTRIBUTING.md](https://github.com/vertica/dbt-vertica/blob/main/CONTRIBUTING.md) for details
 
 ## Develop
 
