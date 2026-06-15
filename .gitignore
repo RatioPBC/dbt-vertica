@@ -6,4 +6,4 @@ logs
 .venv/
 test.env
 .env
-requirements.txt
+dist/

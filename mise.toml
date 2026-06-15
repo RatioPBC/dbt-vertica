@@ -5,6 +5,7 @@ container_name = "dbt_vertica"
 [tools]
 "http:vsql" = { version = "24.02", url = 'https://ratio-vertica-09e48653-cea9-4b62-ac4f-4ae2a820ea99.t3.tigrisfiles.io/vsql/vsql_{{ version }}_{{ os() }}_{{ arch(x64="amd64") }}' }
 python = "3.11.14"
+uv = "latest"
 
 [env]
 CONFORM_DISABLE_FORMAT_FOR_FILETYPES = "sql,python"
@@ -42,45 +43,37 @@ arg "<query>" default="select version();"
 '''
 
 [tasks.setup]
-description = "Setup dependencies and install package."
-run = ["mise run deps", "mise run deps:extract", "mise run deps:install", "mise run install"]
+description = "Create the venv, install deps + editable package from uv.lock."
+# `uv sync` creates .venv, installs runtime deps + the `dev` dependency group,
+# and installs this package editable. The hatchling backend's dev-mode-dirs
+# emits a plain .pth (not an import finder), so this repo's dbt/__init__.py
+# (pkgutil.extend_path) merges with dbt-core's `dbt` namespace instead of
+# shadowing dbt.tests / dbt.adapters.sql. Live macro/source edits load directly.
+run = "uv sync"
 
 [tasks.deps]
-description = "Install Python dependencies"
-run = '''
-python -m pip install --upgrade pip
-pip install build twine pip-tools
-'''
+description = "Re-resolve and sync dependencies from pyproject.toml into uv.lock."
+run = "uv sync"
 
-[tasks."deps:extract"]
-description = "Extract dependencies"
-run = "pip-compile -o requirements.txt --extra dev setup.py"
-
-[tasks."deps:install"]
-description = "Install dependencies"
-run = "pip install -r requirements.txt"
-
-[tasks.install]
-description = "Editable dev install via a plain .pth so live macro/source edits load and the dbt namespace merges with core."
-# NOTE: `pip install -e .` is intentionally NOT used here. setuptools' modern
-# editable install generates an import finder that pins the `dbt` namespace to
-# this repo only, shadowing dbt.tests / dbt.adapters.sql from dbt-core and
-# breaking the test suite. A plain .pth adds the repo root to sys.path and lets
-# this repo's dbt/__init__.py (pkgutil.extend_path) merge with core's namespace.
-run = '''
-SITE=$(python -c "import site; print(site.getsitepackages()[0])")
-# Remove any stale modern-editable finder artifacts from a previous `pip install -e .`
-rm -f "$SITE"/__editable__*dbt_vertica* "$SITE"/__editable___dbt_vertica*finder.py
-# Point Python at the live source tree
-echo "$MISE_PROJECT_ROOT" > "$SITE/dbt-vertica-dev.pth"
-python -c "import dbt.adapters.vertica, dbt.tests.fixtures.project; print('dbt-vertica editable install OK (namespace merged)')"
-'''
+[tasks.lock]
+description = "Update uv.lock to the latest allowed dependency versions."
+run = "uv lock --upgrade"
 
 [tasks.test]
-run = "python -m pytest ${usage_test}"
+description = "Run the test suite."
+run = "uv run pytest ${usage_test}"
 usage = '''
-arg "<test>" default="tests/" 
+arg "<test>" default="tests/"
 '''
 
 [tasks."test:basic"]
-run = "python -m pytest tests/functional/adapter/test_basic.py"
+description = "Run the basic functional adapter tests."
+run = "uv run pytest tests/functional/adapter/test_basic.py"
+
+[tasks.lint]
+description = "Lint and format-check with ruff."
+run = "uv run ruff check ."
+
+[tasks.build]
+description = "Build the sdist + wheel into dist/."
+run = "uv build"

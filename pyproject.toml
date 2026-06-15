@@ -1,0 +1,75 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dbt-vertica"
+description = "Official vertica adapter plugin for dbt (data build tool)"
+readme = "README.md"
+license = "Apache-2.0"
+authors = [
+    { name = "Vertica (Former authors: Matthew Carter, Andy Regan, Andrew Hedengren)", email = "os_dbt_vertica@microfocus.com" },
+]
+requires-python = ">=3.10"
+dynamic = ["version"]
+dependencies = [
+    "dbt-core>=1.11.0",
+    "vertica-python>=1.1.0",
+    "python-dotenv==0.21.1",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Topic :: Database",
+    "Topic :: Database :: Database Engines/Servers",
+    "Topic :: Database :: Front-Ends",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/vertica/dbt-vertica"
+
+# Dev dependency group (PEP 735). `uv sync` installs these by default.
+# - dbt-tests-adapter / pytest: the functional + unit test suite
+# - pytest-dotenv: required by the env_files setting in [tool.pytest.ini_options]
+# - ruff: linting/formatting
+# - build / twine: building and publishing release artifacts
+[dependency-groups]
+dev = [
+    "dbt-tests-adapter>=1.11.0",
+    "pytest>=8.3.2",
+    "pytest-dotenv>=0.5.2",
+    "ruff>=0.6",
+    "build>=1.0",
+    "twine>=5.0",
+]
+
+[tool.hatch.version]
+path = "dbt/adapters/vertica/__version__.py"
+
+# The `dbt` package is a namespace package shared with dbt-core. We ship the
+# whole `dbt` tree (Python + the include/ macro SQL).
+[tool.hatch.build.targets.wheel]
+packages = ["dbt"]
+
+# Editable installs use a plain path entry (a .pth pointing at the repo root)
+# rather than setuptools' modern import-finder. The finder pins the `dbt`
+# namespace to this repo only, shadowing dbt.tests / dbt.adapters.sql from
+# dbt-core and breaking the test suite. dev-mode-dirs lets this repo's
+# dbt/__init__.py (pkgutil.extend_path) merge with core's namespace.
+[tool.hatch.build.targets.wheel.hooks]
+
+[tool.hatch.build]
+dev-mode-dirs = ["."]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/functional/adapter/"]
+filterwarnings = [
+    "ignore:.*'soft_unicode' has been renamed to 'soft_str'*:DeprecationWarning",
+    "ignore:unclosed file .*:ResourceWarning",
+]
+# Loads DB connection env vars from test.env via the pytest-dotenv plugin.
+env_files = ["test.env"]
