@@ -395,11 +395,6 @@ class BaseIncrementalOnSchemaChange(BaseIncrementalOnSchemaChangeSetup):
         self.run_incremental_append_new_columns(project)
         self.run_incremental_append_new_columns_remove_one(project)
 
-    @pytest.mark.skip(
-        reason="Vertica cannot DROP a column that is part of a projection's "
-        "segmentation expression without CASCADE. See "
-        "plans/incremental-sync-all-columns.md"
-    )
     def test_run_incremental_sync_all_columns(self, project):
         self.run_incremental_sync_all_columns(project)
         self.run_incremental_sync_remove_only(project)
@@ -412,4 +407,18 @@ class BaseIncrementalOnSchemaChange(BaseIncrementalOnSchemaChangeSetup):
 
 
 class TestIncrementalOnSchemaChange(BaseIncrementalOnSchemaChange):
-    pass
+    def test_run_incremental_sync_all_columns(self, project):
+        # Vertica does not support dropping columns via
+        # on_schema_change='sync_all_columns' / 'sync_remove_only': a column is
+        # often part of the superprojection's segmentation, and dropping it
+        # requires rewriting the whole table. The adapter raises a clear
+        # compiler error instead of silently rewriting. See
+        # vertica__alter_relation_add_remove_columns in
+        # dbt/include/vertica/macros/adapters/columns.sql.
+        for select in (
+            "model_a incremental_sync_all_columns incremental_sync_all_columns_target",
+            "model_a incremental_sync_remove_only incremental_sync_remove_only_target",
+        ):
+            run_dbt(["run", "--select", select])
+            results = run_dbt(["run", "--select", select], expect_pass=False)
+            assert any("Vertica cannot drop column" in r.message for r in results)

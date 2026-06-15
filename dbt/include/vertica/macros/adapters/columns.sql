@@ -177,16 +177,57 @@
   {% if remove_columns is none %}
     {% set remove_columns = [] %}
   {% endif %}
-  {% set sql -%}
+  {#
+    Adding columns is cheap and supported. Each ADD runs as its own statement.
+  #}
   {% for column in add_columns %}
-    ALTER TABLE {{ relation }} ADD COLUMN IF NOT EXISTS {{  adapter.quote(column.name) }} {{ column.data_type }} ;
+    {% set sql -%}
+      ALTER TABLE {{ relation }} ADD COLUMN IF NOT EXISTS {{  adapter.quote(column.name) }} {{ column.data_type }}
+    {%- endset %}
+    {% do log(sql) %}
+    {% do run_query(sql) %}
   {% endfor %}
-  {% for column in remove_columns %}
-    ALTER TABLE {{ relation }} DROP COLUMN IF EXISTS {{  adapter.quote(column.name) }} ;
-  {% endfor %}
-  {%- endset -%}
-  {% do log(sql) %}
-  {% do run_query(sql) %}
+
+  {#
+    Dropping columns is intentionally NOT supported on Vertica.
+
+    Vertica stores table data in projections. A column is drop-blocked when it
+    is part of the superprojection's physical layout -- e.g. it appears in the
+    segmentation expression, or is the first column of the sort order. dbt's
+    incremental tables are auto-segmented by hash of their columns, so this is
+    the common case, not the exception. Behavior verified on Vertica 25.1:
+
+      - A column NOT in the layout drops fine with a plain DROP COLUMN.
+      - A plain DROP COLUMN on a layout column is rejected: the projection
+        depends on it (Sqlstate 3128, "DROP failed due to dependencies",
+        hint "Use DROP .. CASCADE").
+      - DROP COLUMN ... CASCADE does NOT rescue it on a normal single-
+        superprojection table: dropping that projection would leave the table
+        with no up-to-date copy of its data, so Vertica rolls back too
+        (Sqlstate 4122, "No up-to-date super projection left ..."). It also
+        rolls back when the drop would break K-safety (Sqlstate 2409).
+
+    The only safe paths (create + refresh a replacement superprojection, or
+    rewrite the table) both rewrite ALL of the data. Doing that silently on
+    every incremental run defeats the purpose of an incremental model and, on a
+    large table, is an expensive surprise. So instead of guessing, we fail with
+    guidance and let the user choose a deliberate, full rewrite (--full-refresh).
+
+    Adds still work; only the drop side (on_schema_change = 'sync_all_columns'
+    or 'sync_remove_only') raises.
+  #}
+  {% if remove_columns %}
+    {% set column_names = remove_columns | map(attribute='name') | join(', ') %}
+    {% do exceptions.raise_compiler_error(
+      "Vertica cannot drop column(s) [" ~ column_names ~ "] from "
+      ~ relation ~ ". On Vertica a column is often part of the superprojection's "
+      ~ "segmentation, and dropping it requires rewriting the whole table. "
+      ~ "on_schema_change='sync_all_columns'/'sync_remove_only' do not support "
+      ~ "column removal here. To apply this change, rebuild the model with "
+      ~ "`dbt run --full-refresh`. Adding columns is supported "
+      ~ "(on_schema_change='append_new_columns')."
+    ) %}
+  {% endif %}
 {% endmacro %}
 
 {# 
