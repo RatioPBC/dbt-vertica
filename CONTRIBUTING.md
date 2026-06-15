@@ -52,27 +52,55 @@ git checkout -b my-fix-branch
 
 ## Step 3: Install dependencies
 
-Install the dbt-vertica dependencies for development:
+This project uses [mise](https://mise.jdx.dev/) to provision tooling (Python, `vsql`, `uv`)
+and [uv](https://docs.astral.sh/uv/) to manage the Python environment. mise reads
+`mise.toml` and uv reads `pyproject.toml` / `uv.lock`.
+
+First, install the pinned tools (Python, `vsql`, and `uv`):
 ```shell
-
-pip install dbt-vertica
-
+mise install
 ```
+
+Then create the virtualenv and install all dependencies — runtime, the `dev`
+dependency group, and an editable install of `dbt-vertica` itself:
+```shell
+mise run setup
+```
+
+`mise run setup` runs `uv sync`, which creates `.venv/` and installs everything
+from `uv.lock`. The package is installed editable, so changes to the Python
+sources and macro SQL take effect immediately without reinstalling.
+
+> The `dbt` package is a namespace package shared with dbt-core. The editable
+> install is configured (via the hatchling backend's `dev-mode-dirs`) to emit a
+> plain `.pth` path entry rather than an import finder, so this repo's `dbt`
+> namespace merges with dbt-core's instead of shadowing it. Don't run
+> `pip install -e .` — it reintroduces the shadowing problem.
+
+If you change dependencies in `pyproject.toml`, re-run `mise run setup` (or
+`mise run deps`) to update the environment, and `mise run lock` to refresh
+`uv.lock`. Commit the updated `uv.lock`.
 
 ## Step 4: Get the test suite running
 
-*dbt-vertica* comes with a test suite of its own, in the Tests directory of the code base. It’s our policy to make sure all tests always pass.
+*dbt-vertica* comes with a test suite of its own, in the `tests/` directory of the code base. It’s our policy to make sure all tests always pass.
 We appreciate any and all contributions to the test suite! These tests use a Pytest framework: testing. You might want to check out the testing documentation for more details.
 
-Syntax tests do simple syntax testing of individual metrics and configs, which do not require database connection. Examples of running tests:
+Unit tests (`tests/unit/`) require no database. Run them with:
+```shell
+mise run test tests/unit/
+```
 
-Run all test :
+Functional tests (`tests/functional/adapter/`) require a live Vertica database.
+Start one in Docker with `mise run vertica:start`, then run the suite:
 ```shell
-$ cd /tests
+mise run test            # the whole suite (defaults to tests/)
+mise run test:basic      # just the basic functional adapter tests
+mise run test tests/functional/adapter/test_basic.py   # a specific path
 ```
-```shell
-$ pytest functional/adapter/
-```
+
+The `mise run test` task wraps `uv run pytest`, so it runs inside the
+project venv. You can also lint with `mise run lint` (ruff).
 
 The Github Actions CI workflow committed as part of the project will automatically run test suite through different pytest versions. These CI tests must pass before any PR will be considered. This CI workflow can be run on your forked repository after you are enabling Github Actions on your fork.
 
