@@ -24,7 +24,6 @@ from dbt.tests.adapter.constraints.test_constraints import (
 from dbt.tests.adapter.utils.test_null_compare import BaseNullCompare
 from dbt.tests.adapter.utils.test_null_compare import BaseMixedNullCompare
 
-from dbt.tests.adapter.constraints.test_constraints import BaseIncrementalConstraintsRollback
 from dbt.tests.adapter.utils.test_equals import  BaseEquals
 from dbt.tests.adapter.utils.test_validate_sql import  BaseValidateSqlMethod
 
@@ -33,8 +32,6 @@ from dbt.tests.adapter.utils.test_validate_sql import  BaseValidateSqlMethod
 
 
 from dbt.tests.adapter.constraints.fixtures import (
-    my_model_sql,
-    my_incremental_model_sql,
     my_model_view_wrong_order_sql,
     my_model_incremental_wrong_order_sql,
     my_model_view_wrong_name_sql,
