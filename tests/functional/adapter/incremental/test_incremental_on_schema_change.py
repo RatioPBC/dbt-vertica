@@ -18,11 +18,6 @@ from dbt.tests.util import (
     check_relations_equal,
     run_dbt,
 )
-from dbt.tests.adapter.incremental.test_incremental_on_schema_change import (
- 
-    BaseIncrementalOnSchemaChange,
-    BaseIncrementalOnSchemaChangeSetup,
-)
 
 _MODELS__INCREMENTAL_SYNC_REMOVE_ONLY = """
 {{
@@ -327,6 +322,7 @@ select id,
 from source_data
 """
 
+
 class BaseIncrementalOnSchemaChangeSetup:
     @pytest.fixture(scope="class")
     def models(self):
@@ -344,7 +340,6 @@ class BaseIncrementalOnSchemaChangeSetup:
             "incremental_sync_all_columns_target.sql": _MODELS__INCREMENTAL_SYNC_ALL_COLUMNS_TARGET,
             "incremental_append_new_columns_remove_one_target.sql": _MODELS__INCREMENTAL_APPEND_NEW_COLUMNS_REMOVE_ONE_TARGET,
         }
-
 
     def run_twice_and_assert(self, include, compare_source, compare_target, project):
 
@@ -373,13 +368,17 @@ class BaseIncrementalOnSchemaChangeSetup:
         self.run_twice_and_assert(select, compare_source, compare_target, project)
 
     def run_incremental_sync_all_columns(self, project):
-        select = "model_a incremental_sync_all_columns incremental_sync_all_columns_target"
+        select = (
+            "model_a incremental_sync_all_columns incremental_sync_all_columns_target"
+        )
         compare_source = "incremental_sync_all_columns"
         compare_target = "incremental_sync_all_columns_target"
-        #self.run_twice_and_assert(select, compare_source, compare_target, project)
+        self.run_twice_and_assert(select, compare_source, compare_target, project)
 
     def run_incremental_sync_remove_only(self, project):
-        select = "model_a incremental_sync_remove_only incremental_sync_remove_only_target"
+        select = (
+            "model_a incremental_sync_remove_only incremental_sync_remove_only_target"
+        )
         compare_source = "incremental_sync_remove_only"
         compare_target = "incremental_sync_remove_only_target"
         self.run_twice_and_assert(select, compare_source, compare_target, project)
@@ -396,9 +395,14 @@ class BaseIncrementalOnSchemaChange(BaseIncrementalOnSchemaChangeSetup):
         self.run_incremental_append_new_columns(project)
         self.run_incremental_append_new_columns_remove_one(project)
 
+    @pytest.mark.skip(
+        reason="Vertica cannot DROP a column that is part of a projection's "
+        "segmentation expression without CASCADE. See "
+        "plans/incremental-sync-all-columns.md"
+    )
     def test_run_incremental_sync_all_columns(self, project):
         self.run_incremental_sync_all_columns(project)
-       # self.run_incremental_sync_remove_only(project)
+        self.run_incremental_sync_remove_only(project)
 
     def test_run_incremental_fail_on_schema_change(self, project):
         select = "model_a incremental_fail"
@@ -407,8 +411,5 @@ class BaseIncrementalOnSchemaChange(BaseIncrementalOnSchemaChangeSetup):
         assert "Compilation Error" in results_two[1].message
 
 
-
-
 class TestIncrementalOnSchemaChange(BaseIncrementalOnSchemaChange):
-   pass
-
+    pass
