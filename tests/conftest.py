@@ -36,43 +36,6 @@ def pytest_configure(config):
 
 # The profile dictionary, used to write out profiles.yml
 # dbt will supply a unique schema per test, so we do not specify 'schema' here
-@pytest.fixture(scope="class")
-def dbt_profile_target():
-    return {
-        "type": "vertica",
-        "threads": 1,
-        "host": "localhost",
-        "username": "dbadmin",
-        "password": "",
-        "database": "docker",
-        "port": 5433,
-    }
-
-
-#  return {
-#         "type": "vertica",
-#         "threads": 1,
-#         "host": "159.65.150.255",
-#         "port": int(os.getenv("VERTICA_TEST_PORT", 5433)),
-#         "username": os.getenv("VERTICA_TEST_USER", "dbadmin"),
-#         "password": os.getenv("VERTICA_TEST_PASS", ""),
-#         "database": os.getenv("VERTICA_TEST_DATABASE","VMart"),
-
-#     }
-
-
-# def dbt_profile_target():
-#     return {
-#         'type': 'vertica',
-#         'threads': 1,
-#         'host': 'localhost',
-#         'username': 'dbadmin',
-#         'password': '',
-#         'database': 'docker',
-#         'port': 5433,
-#     }
-
-
 @pytest.fixture(scope="session")
 def dbt_profile_target(request):
     profile_type = request.config.getoption("--profile")
