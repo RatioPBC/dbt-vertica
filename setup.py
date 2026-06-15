@@ -24,9 +24,7 @@ HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
 
 
-import os
 import sys
-import re
 
 # require python 3.8 or newer
 if sys.version_info < (3, 8):
@@ -36,7 +34,6 @@ if sys.version_info < (3, 8):
 
 
 # require version of setuptools that supports find_namespace_packages
-from setuptools import setup
 
 try:
     from setuptools import find_namespace_packages

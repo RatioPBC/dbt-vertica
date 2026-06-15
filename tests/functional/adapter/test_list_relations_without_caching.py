@@ -110,7 +110,7 @@ class TestListRelationsWithoutCachingSingle:
         for schema in schemas:
             schema_relation = f"{database}.{schema}"
             kwargs = {"schema_relation": schema_relation}
-            print("checks",kwargs)
+            print("checks", kwargs)
             _, log_output = run_dbt_and_capture(
                 [
                     "--debug",
@@ -120,7 +120,6 @@ class TestListRelationsWithoutCachingSingle:
                     "--args",
                     str(kwargs),
                 ]
-               
             )
 
             parsed_logs = parse_json_logs(log_output)
@@ -197,11 +196,8 @@ class TestListRelationsWithoutCachingFull:
                     "--args",
                     str(kwargs),
                 ],
-               
-                
-                
             )
 
             parsed_logs = parse_json_logs(log_output)
             traceback = find_exc_info_in_parsed_logs(parsed_logs, "Traceback")
-            assert False == traceback
+            assert not traceback

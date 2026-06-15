@@ -24,9 +24,7 @@ from dbt.adapters.capability import CapabilityDict, CapabilitySupport, Support, 
 from dbt.adapters.base import available
 from dbt_common.exceptions import (
 
-    DbtRuntimeError,
-    CompilationError,
-    DbtDatabaseError
+    DbtRuntimeError
 )
 
 import agate

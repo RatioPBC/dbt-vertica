@@ -79,7 +79,7 @@ python -c "import dbt.adapters.vertica, dbt.tests.fixtures.project; print('dbt-v
 [tasks.test]
 run = "python -m pytest ${usage_test}"
 usage = '''
-arg "<test>" default="test/" 
+arg "<test>" default="tests/" 
 '''
 
 [tasks."test:basic"]

@@ -19,7 +19,6 @@ from dbt.tests.adapter.constraints.test_constraints import (
     BaseTableConstraintsColumnsEqual,
     BaseViewConstraintsColumnsEqual,
     BaseIncrementalConstraintsColumnsEqual,
-    BaseConstraintsRuntimeDdlEnforcement,
     BaseIncrementalConstraintsRuntimeDdlEnforcement,
 )
 from dbt.tests.adapter.utils.test_null_compare import BaseNullCompare
@@ -29,8 +28,6 @@ from dbt.tests.adapter.constraints.test_constraints import BaseIncrementalConstr
 from dbt.tests.adapter.utils.test_equals import  BaseEquals
 from dbt.tests.adapter.utils.test_validate_sql import  BaseValidateSqlMethod
 
-from dbt.tests.adapter.constraints.test_constraints import BaseModelConstraintsRuntimeEnforcement
-from dbt.tests.adapter.constraints.test_constraints import BaseConstraintQuotedColumn
 
 
 
@@ -38,10 +35,8 @@ from dbt.tests.adapter.constraints.test_constraints import BaseConstraintQuotedC
 from dbt.tests.adapter.constraints.fixtures import (
     my_model_sql,
     my_incremental_model_sql,
-    my_model_wrong_order_sql,
     my_model_view_wrong_order_sql,
     my_model_incremental_wrong_order_sql,
-    my_model_wrong_name_sql,
     my_model_view_wrong_name_sql,
     my_model_incremental_wrong_name_sql,
     #my_model_with_quoted_column_name_sql,
@@ -57,9 +52,7 @@ from dbt.tests.adapter.constraints.fixtures import (
 from dbt.tests.util import (
     run_dbt,
     get_manifest,
-    run_dbt_and_capture,
     write_file,
-    read_file,
     relation_from_name,
 )
 my_model_struct_wrong_data_type_sql = """

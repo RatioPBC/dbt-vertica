@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlite3 import connect
 import pytest
-import os
-from typing import Dict, Any, Set
 
 # Import the standard functional fixtures as a plugin
 # Note: fixtures with session scope need to be local

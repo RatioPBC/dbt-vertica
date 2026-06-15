@@ -1,12 +1,8 @@
 from dataclasses import dataclass, field
-from typing import FrozenSet, List, Optional
+from typing import FrozenSet
 
 from dbt.adapters.base.relation import BaseRelation
-from dbt.adapters.contracts.relation import RelationConfig, RelationType
-from dbt.adapters.relation_configs import (
-    RelationConfigChangeAction,
-    RelationResults,
-)
+from dbt.adapters.contracts.relation import RelationType
 from dbt_common.exceptions import DbtRuntimeError
 
 from dbt.adapters.vertica.relation_configs.policies import (
