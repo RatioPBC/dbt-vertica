@@ -28,3 +28,13 @@ Plugin = AdapterPlugin(
     adapter=verticaAdapter,
     credentials=verticaCredentials,
     include_path=vertica.PACKAGE_PATH)
+
+
+__all__ = [
+    "verticaConnectionManager",
+    "verticaCredentials",
+    "verticaAdapter",
+    "VerticaColumn",
+    "VerticaRelation",
+    "Plugin",
+]

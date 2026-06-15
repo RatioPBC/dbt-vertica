@@ -13,18 +13,18 @@
 # limitations under the License.
 
 #!/usr/bin/env python
+import os
+import pathlib
+import re
+import sys
+
 from setuptools import find_packages
 from setuptools import setup
-import pathlib
-import os
-import re
 
 
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
 
-
-import sys
 
 # require python 3.8 or newer
 if sys.version_info < (3, 8):
@@ -36,7 +36,7 @@ if sys.version_info < (3, 8):
 # require version of setuptools that supports find_namespace_packages
 
 try:
-    from setuptools import find_namespace_packages
+    from setuptools import find_namespace_packages  # noqa: F401
 except ImportError:
     # the user has a downlevel version of setuptools.
     print("Error: dbt requires setuptools v40.1.0 or higher.")

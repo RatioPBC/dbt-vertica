@@ -29,8 +29,6 @@ from dbt_common.exceptions import (
 
 import agate
 from dataclasses import dataclass
-from dbt.adapters.base.meta import available
-from dbt.adapters.sql import SQLAdapter  # type: ignore
 
 from dbt.adapters.base.impl import AdapterConfig,ConstraintSupport
 from dbt_common.contracts.constraints import ConstraintType

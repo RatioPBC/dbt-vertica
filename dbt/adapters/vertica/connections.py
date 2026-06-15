@@ -226,7 +226,6 @@ class verticaConnectionManager(SQLConnectionManager):
                 check = cursor._message
                 if isinstance(check, vertica_python.vertica.messages.ErrorResponse):
                     logger.debug(f"Cursor message is: {check}")
-                    self.release()
                     raise dbt_common.exceptions.DbtDatabaseError(str(check))
 
             data = cls.process_results(column_names, rows)
