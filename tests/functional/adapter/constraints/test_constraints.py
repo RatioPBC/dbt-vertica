@@ -517,7 +517,7 @@ class VerticaColumnEqualSetup:
 
             # Write wrong data_type to corresponding schema file
             # Write integer type for all schema yaml values except when testing integer type itself
-            wrong_schema_data_type = (
+            (
                 schema_int_type
                 if schema_data_type.upper() != schema_int_type.upper()
                 else schema_string_type

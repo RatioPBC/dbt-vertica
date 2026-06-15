@@ -13,8 +13,6 @@
 # limitations under the License.
 
 
-
-
 import pytest
 import os
 from datetime import datetime
@@ -347,9 +345,9 @@ def verify_catalog(project, expected_catalog, start_time):
             found_node = catalog[key][unique_id]
             for node_key in expected_node:
                 assert node_key in found_node
-                assert (
-                    type(found_node[node_key]) == type(expected_node[node_key])
-                ), f"Key '{node_key}' in '{unique_id}' did not match"
+                assert type(found_node[node_key]) is type(expected_node[node_key]), (
+                    f"Key '{node_key}' in '{unique_id}' did not match"
+                )
 
 
 def verify_metadata(metadata, dbt_schema_version, start_time):
@@ -450,7 +448,9 @@ class BaseDocsGenerate(BaseGenerateProject):
     # Test "--no-compile" flag works and produces no manifest.json
     def test_run_and_generate_no_compile(self, project, expected_catalog):
         start_time = run_and_generate(project, ["--no-compile"])
-        assert not os.path.exists(os.path.join(project.project_root, "target", "manifest.json"))
+        assert not os.path.exists(
+            os.path.join(project.project_root, "target", "manifest.json")
+        )
         verify_catalog(project, expected_catalog, start_time)
 
     # Test generic "docs generate" command
@@ -462,7 +462,6 @@ class BaseDocsGenerate(BaseGenerateProject):
         assert os.path.exists(os.path.join(".", "target", "assets"))
         assert os.path.exists(os.path.join(".", "target", "assets", "lorem-ipsum.txt"))
         assert not os.path.exists(os.path.join(".", "target", "non-existent-assets"))
-
 
 
 class BaseDocsGenReferences(BaseGenerateProject):
@@ -496,7 +495,6 @@ class BaseDocsGenReferences(BaseGenerateProject):
         verify_catalog(project, expected_catalog, start_time)
 
 
-
 class TestDocsGenerateVertica(BaseDocsGenerate):
     @pytest.fixture(scope="class")
     def expected_catalog(self, project):
@@ -508,8 +506,9 @@ class TestDocsGenerateVertica(BaseDocsGenerate):
             view_type="VIEW",
             table_type="BASE TABLE",
             model_stats=vertica_stats(False),
-            text_type= "abc",
+            text_type="abc",
         )
+
 
 class TestDocsGenReferencesVertica(BaseDocsGenReferences):
     @pytest.fixture(scope="class")
@@ -523,5 +522,5 @@ class TestDocsGenReferencesVertica(BaseDocsGenReferences):
             view_type="VIEW",
             table_type="BASE TABLE",
             model_stats=vertica_stats(False),
-            text_type= "abc",
+            text_type="abc",
         )
